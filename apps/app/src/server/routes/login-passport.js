@@ -529,6 +529,75 @@ module.exports = (crowi, app) => {
     });
   };
 
+  const loginWithTraq = (req, res, next) => {
+    if (!passportService.isTraqStrategySetup) {
+      logger.debug('TraqStrategy has not been set up');
+      const error = new ExternalAccountLoginError(
+        'message.strategy_has_not_been_set_up',
+        { strategy: 'TraqStrategy' },
+      );
+      return next(error);
+    }
+
+    passport.authenticate('traq')(req, res);
+  };
+
+  const loginPassportTraqCallback = async (req, res, next) => {
+    const providerId = 'traq';
+    const strategyName = 'traq';
+
+    let response;
+    try {
+      response = await promisifiedPassportAuthentication(
+        strategyName,
+        req,
+        res,
+      );
+    } catch (err) {
+      logger.debug(err);
+      return next(new ExternalAccountLoginError(err.message));
+    }
+
+    const userInfo = {
+      id: response.sub,
+      username: response.preferred_username,
+      name: response.name,
+      email: `${response.preferred_username}@trap.invalid`,
+    };
+
+    const externalAccount = await externalAccountService.getOrCreateUser(
+      userInfo,
+      providerId,
+    );
+    if (!externalAccount) {
+      return next(new ExternalAccountLoginError('message.sign_in_failure'));
+    }
+
+    const user = (await externalAccount.populate('user')).user;
+
+    // Update user icon from traQ profile picture
+    if (response.picture != null && user.image !== response.picture) {
+      user.image = response.picture;
+      await user.updateImageUrlCached();
+      await user.save();
+    }
+
+    req.logIn(user, async (err) => {
+      if (err) {
+        logger.debug(err.message);
+        return next(new ExternalAccountLoginError(err.message));
+      }
+
+      return loginSuccessHandler(
+        req,
+        res,
+        user,
+        SupportedAction.ACTION_USER_LOGIN_WITH_TRAQ,
+        true,
+      );
+    });
+  };
+
   const loginWithOidc = (req, res, next) => {
     if (!passportService.isOidcStrategySetup) {
       logger.debug('OidcStrategy has not been set up');
@@ -716,10 +785,12 @@ module.exports = (crowi, app) => {
     loginWithLocal,
     loginWithGoogle,
     loginWithGitHub,
+    loginWithTraq,
     loginWithOidc,
     loginWithSaml,
     loginPassportGoogleCallback,
     loginPassportGitHubCallback,
+    loginPassportTraqCallback,
     loginPassportOidcCallback,
     loginPassportSamlCallback,
   };

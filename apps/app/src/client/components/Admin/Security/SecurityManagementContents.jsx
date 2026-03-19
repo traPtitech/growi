@@ -12,6 +12,7 @@ import OidcSecuritySetting from './OidcSecuritySetting';
 import SamlSecuritySetting from './SamlSecuritySetting';
 import { SecuritySetting } from './SecuritySetting';
 import ShareLinkSetting from './ShareLinkSetting';
+import TraqSecuritySetting from './TraqSecuritySetting';
 
 const PassportLocalIcon = () => (
   <span className="material-symbols-outlined">groups</span>
@@ -30,6 +31,9 @@ const PassportGoogleIcon = () => (
 );
 const PassportGitHubIcon = () => (
   <span className="growi-custom-icons align-bottom">github</span>
+);
+const PassportTraqIcon = () => (
+  <span className="growi-custom-icons align-bottom">traq</span>
 );
 
 const navTabMapping = {
@@ -56,6 +60,10 @@ const navTabMapping = {
   passport_github: {
     Icon: PassportGitHubIcon,
     i18n: 'GitHub',
+  },
+  passport_traq: {
+    Icon: PassportTraqIcon,
+    i18n: 'traQ',
   },
 };
 
@@ -132,6 +140,9 @@ const SecurityManagementContents = () => {
             {activeComponents.has('passport_github') && (
               <GitHubSecuritySetting />
             )}
+          </TabPane>
+          <TabPane tabId="passport_traq">
+            {activeComponents.has('passport_traq') && <TraqSecuritySetting />}
           </TabPane>
         </TabContent>
       </div>

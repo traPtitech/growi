@@ -162,6 +162,11 @@ export const CONFIG_KEYS = [
   'security:passport-oidc:jwksUri',
   'security:passport-oidc:isSameUsernameTreatedAsIdenticalUser',
   'security:passport-oidc:isSameEmailTreatedAsIdenticalUser',
+  'security:passport-traq:isEnabled',
+  'security:passport-traq:clientId',
+  'security:passport-traq:clientSecret',
+  'security:passport-traq:issuerHost',
+  'security:passport-traq:isSameUsernameTreatedAsIdenticalUser',
 
   // File Upload Settings
   'fileUpload:local:useInternalRedirect',
@@ -854,6 +859,22 @@ export const CONFIG_DEFINITIONS = {
       defaultValue: false,
     }),
   'security:passport-oidc:isSameEmailTreatedAsIdenticalUser':
+    defineConfig<boolean>({
+      defaultValue: false,
+    }),
+  'security:passport-traq:isEnabled': defineConfig<boolean>({
+    defaultValue: false,
+  }),
+  'security:passport-traq:clientId': defineConfig<string | undefined>({
+    defaultValue: undefined,
+  }),
+  'security:passport-traq:clientSecret': defineConfig<string | undefined>({
+    defaultValue: undefined,
+  }),
+  'security:passport-traq:issuerHost': defineConfig<string | undefined>({
+    defaultValue: undefined,
+  }),
+  'security:passport-traq:isSameUsernameTreatedAsIdenticalUser':
     defineConfig<boolean>({
       defaultValue: false,
     }),

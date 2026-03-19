@@ -26,7 +26,7 @@ class ExternalAccountService {
     const isSameUsernameTreatedAsIdenticalUser =
       this.passportService.isSameUsernameTreatedAsIdenticalUser(providerId);
     const isSameEmailTreatedAsIdenticalUser =
-      providerId === 'ldap'
+      providerId === 'ldap' || providerId === 'traq'
         ? false
         : this.passportService.isSameEmailTreatedAsIdenticalUser(providerId);
 

@@ -75,6 +75,11 @@ class PassportService implements S2sMessageHandlable {
   isOidcStrategySetup = false;
 
   /**
+   * the flag whether TraqStrategy is set up successfully
+   */
+  isTraqStrategySetup = false;
+
+  /**
    * the flag whether SamlStrategy is set up successfully
    */
   isSamlStrategySetup = false;
@@ -120,6 +125,10 @@ class PassportService implements S2sMessageHandlable {
     github: {
       setup: 'setupGitHubStrategy',
       reset: 'resetGitHubStrategy',
+    },
+    traq: {
+      setup: 'setupTraqStrategy',
+      reset: 'resetTraqStrategy',
     },
   };
 
@@ -204,6 +213,9 @@ class PassportService implements S2sMessageHandlable {
     }
     if (this.isGitHubStrategySetup) {
       setupStrategies.push('github');
+    }
+    if (this.isTraqStrategySetup) {
+      setupStrategies.push('traq');
     }
 
     return setupStrategies;
@@ -622,6 +634,73 @@ class PassportService implements S2sMessageHandlable {
     logger.debug('GitHubStrategy: reset');
     passport.unuse('github');
     this.isGitHubStrategySetup = false;
+  }
+
+  async setupTraqStrategy(): Promise<void> {
+    this.resetTraqStrategy();
+
+    const isEnabled = configManager.getConfig(
+      'security:passport-traq:isEnabled',
+    );
+
+    if (!isEnabled) {
+      return;
+    }
+
+    logger.debug('TraqStrategy: setting up..');
+
+    const clientId = configManager.getConfig('security:passport-traq:clientId');
+    const clientSecret = configManager.getConfig(
+      'security:passport-traq:clientSecret',
+    );
+    const issuerHost = configManager.getConfig(
+      'security:passport-traq:issuerHost',
+    );
+
+    if (!clientId || !clientSecret || !issuerHost) {
+      return;
+    }
+
+    const metadataURL = this.getOIDCMetadataURL(issuerHost);
+    const issuer = await OIDCIssuer.discover(metadataURL);
+
+    const redirectUri = urljoin(
+      growiInfoService.getSiteUrl(),
+      '/passport/traq/callback',
+    );
+
+    const client = new issuer.Client({
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uris: [redirectUri],
+      response_types: ['code'],
+      id_token_signed_response_alg: 'ES256',
+    });
+
+    passport.use(
+      'traq',
+      new OidcStrategy(
+        {
+          client,
+          params: { scope: 'openid profile' },
+        },
+        (tokenset, userinfo, done) => {
+          if (userinfo) {
+            return done(null, userinfo);
+          }
+          return done(null, false);
+        },
+      ),
+    );
+
+    this.isTraqStrategySetup = true;
+    logger.debug('TraqStrategy: setup is done');
+  }
+
+  resetTraqStrategy(): void {
+    logger.debug('TraqStrategy: reset');
+    passport.unuse('traq');
+    this.isTraqStrategySetup = false;
   }
 
   async setupOidcStrategy() {
@@ -1150,7 +1229,7 @@ class PassportService implements S2sMessageHandlable {
   }
 
   isSameEmailTreatedAsIdenticalUser(
-    providerType: Exclude<IExternalAuthProviderType, 'ldap'>,
+    providerType: Exclude<IExternalAuthProviderType, 'ldap' | 'traq'>,
   ): boolean {
     return configManager.getConfig(
       `security:passport-${providerType}:isSameEmailTreatedAsIdenticalUser`,

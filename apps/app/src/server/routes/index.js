@@ -138,6 +138,11 @@ module.exports = (crowi, app) => {
     loginPassport.loginFailureForExternalAccount,
   );
   app.get(
+    '/passport/traq',
+    loginPassport.loginWithTraq,
+    loginPassport.loginFailureForExternalAccount,
+  );
+  app.get(
     '/passport/oidc',
     loginPassport.loginWithOidc,
     loginPassport.loginFailureForExternalAccount,
@@ -157,6 +162,12 @@ module.exports = (crowi, app) => {
     '/passport/github/callback',
     loginPassport.injectRedirectTo,
     loginPassport.loginPassportGitHubCallback,
+    loginPassport.loginFailureForExternalAccount,
+  );
+  app.get(
+    '/passport/traq/callback',
+    loginPassport.injectRedirectTo,
+    loginPassport.loginPassportTraqCallback,
     loginPassport.loginFailureForExternalAccount,
   );
   app.get(

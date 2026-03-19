@@ -102,6 +102,9 @@ const getServerSideConfigurationProps: GetServerSideProps<
         configManager.getConfig('security:passport-oidc:isEnabled') === true
           ? IExternalAuthProviderType.oidc
           : undefined,
+        configManager.getConfig('security:passport-traq:isEnabled') === true
+          ? IExternalAuthProviderType.traq
+          : undefined,
       ].filter(
         (authType): authType is Exclude<typeof authType, undefined> =>
           authType != null,

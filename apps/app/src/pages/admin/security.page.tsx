@@ -84,6 +84,12 @@ AdminSecuritySettingsPage.getLayout = createAdminPageLayout<Props>({
       );
       return new C();
     },
+    async () => {
+      const { default: C } = await import(
+        '~/client/services/AdminTraqSecurityContainer'
+      );
+      return new C();
+    },
   ],
 });
 // biome-ignore-end lint/style/noRestrictedImports: no-problem dynamic import

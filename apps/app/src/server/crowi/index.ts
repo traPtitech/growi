@@ -476,6 +476,7 @@ class Crowi {
       this.passportService.setupStrategyById('oidc');
       this.passportService.setupStrategyById('google');
       this.passportService.setupStrategyById('github');
+      this.passportService.setupStrategyById('traq');
     } catch (err) {
       logger.error(err);
     }

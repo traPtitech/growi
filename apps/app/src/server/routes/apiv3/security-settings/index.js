@@ -70,7 +70,7 @@ const validator = {
       .isBoolean(),
     body('authId')
       .isString()
-      .isIn(['local', 'ldap', 'saml', 'oidc', 'google', 'github']),
+      .isIn(['local', 'ldap', 'saml', 'oidc', 'google', 'github', 'traq']),
   ],
   localSetting: [
     body('registrationMode').isString().isIn(['Open', 'Restricted', 'Closed']),
@@ -188,6 +188,20 @@ const validator = {
       .if((value) => value != null)
       .isString(),
     body('githubClientSecret')
+      .if((value) => value != null)
+      .isString(),
+    body('isSameUsernameTreatedAsIdenticalUser')
+      .if((value) => value != null)
+      .isBoolean(),
+  ],
+  traqOAuth: [
+    body('traqIssuerHost')
+      .if((value) => value != null)
+      .isString(),
+    body('traqClientId')
+      .if((value) => value != null)
+      .isString(),
+    body('traqClientSecret')
       .if((value) => value != null)
       .isString(),
     body('isSameUsernameTreatedAsIdenticalUser')
@@ -570,6 +584,9 @@ module.exports = (crowi) => {
           isGitHubEnabled: await configManager.getConfig(
             'security:passport-github:isEnabled',
           ),
+          isTraqEnabled: await configManager.getConfig(
+            'security:passport-traq:isEnabled',
+          ),
         },
         ldapAuth: {
           serverUrl: await configManager.getConfig(
@@ -771,6 +788,20 @@ module.exports = (crowi) => {
           ),
           isSameUsernameTreatedAsIdenticalUser: await configManager.getConfig(
             'security:passport-github:isSameUsernameTreatedAsIdenticalUser',
+          ),
+        },
+        traqOAuth: {
+          traqIssuerHost: await configManager.getConfig(
+            'security:passport-traq:issuerHost',
+          ),
+          traqClientId: await configManager.getConfig(
+            'security:passport-traq:clientId',
+          ),
+          traqClientSecret: await configManager.getConfig(
+            'security:passport-traq:clientSecret',
+          ),
+          isSameUsernameTreatedAsIdenticalUser: await configManager.getConfig(
+            'security:passport-traq:isSameUsernameTreatedAsIdenticalUser',
           ),
         },
       };
@@ -1756,6 +1787,54 @@ module.exports = (crowi) => {
         const msg = 'Error occurred in updating githubOAuth';
         logger.error('Error', err);
         return res.apiv3Err(new ErrorV3(msg, 'update-githubOAuth-failed'));
+      }
+    },
+  );
+
+  router.put(
+    '/traq-oauth',
+    accessTokenParser([SCOPE.WRITE.ADMIN.SECURITY]),
+    loginRequiredStrictly,
+    adminRequired,
+    addActivity,
+    validator.traqOAuth,
+    apiV3FormValidator,
+    async (req, res) => {
+      const requestParams = {
+        'security:passport-traq:issuerHost': req.body.traqIssuerHost,
+        'security:passport-traq:clientId': req.body.traqClientId,
+        'security:passport-traq:clientSecret': req.body.traqClientSecret,
+        'security:passport-traq:isSameUsernameTreatedAsIdenticalUser':
+          req.body.isSameUsernameTreatedAsIdenticalUser,
+      };
+
+      try {
+        await updateAndReloadStrategySettings('traq', requestParams);
+
+        const securitySettingParams = {
+          traqIssuerHost: await configManager.getConfig(
+            'security:passport-traq:issuerHost',
+          ),
+          traqClientId: await configManager.getConfig(
+            'security:passport-traq:clientId',
+          ),
+          traqClientSecret: await configManager.getConfig(
+            'security:passport-traq:clientSecret',
+          ),
+          isSameUsernameTreatedAsIdenticalUser: await configManager.getConfig(
+            'security:passport-traq:isSameUsernameTreatedAsIdenticalUser',
+          ),
+        };
+        const parameters = {
+          action: SupportedAction.ACTION_ADMIN_AUTH_TRAQ_UPDATE,
+        };
+        activityEvent.emit('update', res.locals.activity._id, parameters);
+        return res.apiv3({ securitySettingParams });
+      } catch (err) {
+        await crowi.passportService.resetTraqStrategy();
+        const msg = 'Error occurred in updating traqOAuth';
+        logger.error('Error', err);
+        return res.apiv3Err(new ErrorV3(msg, 'update-traqOAuth-failed'));
       }
     },
   );
