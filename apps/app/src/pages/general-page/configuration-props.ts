@@ -1,5 +1,6 @@
 import type { GetServerSideProps, GetServerSidePropsContext } from 'next';
 
+import { getTraqStampConfig } from '~/features/traq-stamp/server/stamp-catalog';
 import type { CrowiRequest } from '~/interfaces/crowi-request';
 import { RegistrationMode } from '~/interfaces/registration-mode';
 
@@ -11,10 +12,12 @@ export const getServerSideRendererConfigProps: GetServerSideProps<
   const req: CrowiRequest = context.req as CrowiRequest;
   const { crowi } = req;
   const { configManager } = crowi;
+  const traqStamps = await getTraqStampConfig();
 
   return {
     props: {
       rendererConfig: {
+        ...(traqStamps == null ? {} : { traqStamps }),
         isEnabledLinebreaks: configManager.getConfig(
           'markdown:isEnabledLinebreaks',
         ),

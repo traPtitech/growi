@@ -13,6 +13,10 @@
 
   font-size: 16px;
 
+  i.emoji {
+    vertical-align: middle;
+  }
+
   // @extend .text-break;
   // https://github.com/twbs/bootstrap/blob/v4.6.1/scss/utilities/_text.scss#L65-L68
   word-break: break-word !important; // Deprecated, but avoids issues with flex containers

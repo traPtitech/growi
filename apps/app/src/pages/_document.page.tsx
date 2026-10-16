@@ -6,6 +6,7 @@ import Document, { Head, Html, Main, NextScript } from 'next/document';
 import type { Locale } from '@growi/core/dist/interfaces';
 
 import type { GrowiPluginResourceEntries } from '~/features/growi-plugin/server/services';
+import { getTraqStampOrigin } from '~/features/traq-stamp/server/stamp-catalog';
 import type { CrowiRequest } from '~/interfaces/crowi-request';
 import loggerFactory from '~/utils/logger';
 
@@ -42,6 +43,7 @@ const HeadersForGrowiPlugin = (
 };
 
 interface GrowiDocumentProps {
+  traqStampStylesheet: string | null;
   themeHref: string | undefined;
   customScript: string | undefined;
   customCss: string | undefined;
@@ -79,6 +81,10 @@ class GrowiDocument extends Document<GrowiDocumentInitialProps> {
 
     return {
       ...initialProps,
+      traqStampStylesheet:
+        getTraqStampOrigin() == null
+          ? null
+          : `${getTraqStampOrigin()}/api/1.0/public/emoji.css`,
       themeHref,
       customScript,
       customCss,
@@ -136,6 +142,9 @@ class GrowiDocument extends Document<GrowiDocumentInitialProps> {
         <Head>
           {this.renderCustomScript(customScript)}
           <link rel="stylesheet" key="link-theme" href={themeHref} />
+          {this.props.traqStampStylesheet != null && (
+            <link rel="stylesheet" href={this.props.traqStampStylesheet} />
+          )}
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
           <link rel="alternate icon" href="/favicon.ico" />
           <HeadersForGrowiPlugin

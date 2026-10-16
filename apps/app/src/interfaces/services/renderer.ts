@@ -1,6 +1,9 @@
+import type { TraqStampConfig } from '~/features/traq-stamp/types';
+
 import type { RehypeSanitizeConfiguration } from './rehype-sanitize';
 
 export type RendererConfig = {
+  traqStamps?: TraqStampConfig;
   isSharedPage?: boolean;
   isEnabledLinebreaks: boolean;
   isEnabledLinebreaksInComments: boolean;

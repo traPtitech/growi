@@ -64,7 +64,7 @@ export const generateViewOptions = (
   config: RendererConfigExt,
   storeTocNode: (toc: HtmlElementNode) => void,
 ): RendererOptions => {
-  const options = generateCommonOptions(pagePath);
+  const options = generateCommonOptions(pagePath, config.traqStamps);
 
   const { remarkPlugins, rehypePlugins, components } = options;
 
@@ -156,7 +156,7 @@ export const generateTocOptions = (
   config: RendererConfigExt,
   tocNode: HtmlElementNode | undefined,
 ): RendererOptions => {
-  const options = generateCommonOptions(undefined);
+  const options = generateCommonOptions(undefined, config.traqStamps);
 
   const { rehypePlugins } = options;
 
@@ -233,7 +233,7 @@ export const generateSimpleViewOptions = (
   highlightKeywords?: string | string[],
   overrideIsEnabledLinebreaks?: boolean,
 ): RendererOptions => {
-  const options = generateCommonOptions(pagePath);
+  const options = generateCommonOptions(pagePath, config.traqStamps);
 
   const { remarkPlugins, rehypePlugins, components } = options;
 
@@ -355,7 +355,7 @@ export const generatePreviewOptions = (
   config: RendererConfigExt,
   pagePath: string,
 ): RendererOptions => {
-  const options = generateCommonOptions(pagePath);
+  const options = generateCommonOptions(pagePath, config.traqStamps);
 
   const { remarkPlugins, rehypePlugins, components } = options;
 

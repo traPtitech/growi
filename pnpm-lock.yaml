@@ -641,6 +641,9 @@ importers:
       micromark-extension-wiki-link:
         specifier: ^0.0.4
         version: 0.0.4
+      micromark-util-decode-string:
+        specifier: 2.0.0
+        version: 2.0.0
       migrate-mongo:
         specifier: ^11.0.0
         version: 11.0.0(mongodb@4.17.2(@aws-sdk/client-sso-oidc@3.600.0))

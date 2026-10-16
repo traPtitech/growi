@@ -14,6 +14,8 @@ import type { Pluggable, PluginTuple } from 'unified';
 
 import { CodeBlock } from '~/components/ReactMarkdownComponents/CodeBlock';
 import { NextLink } from '~/components/ReactMarkdownComponents/NextLink';
+import { remarkPlugin as traqStamp } from '~/features/traq-stamp/remark-plugin';
+import type { TraqStampConfig } from '~/features/traq-stamp/types';
 import type { RendererOptions } from '~/interfaces/renderer-options';
 import { RehypeSanitizeType } from '~/interfaces/services/rehype-sanitize';
 import type { RendererConfig } from '~/interfaces/services/renderer';
@@ -110,11 +112,15 @@ export const verifySanitizePlugin = (
 
 export const generateCommonOptions = (
   pagePath: string | undefined,
+  traqStamps?: TraqStampConfig,
 ): RendererOptions => {
   return {
     remarkPlugins: [
       gfm,
-      emoji.remarkPlugin,
+      ...(traqStamps == null
+        ? []
+        : [[traqStamp, traqStamps] satisfies Pluggable]),
+      [emoji.remarkPlugin, traqStamps?.names],
       pukiwikiLikeLinker,
       growiDirective,
       remarkDirective,
@@ -149,7 +155,7 @@ export const generateSSRViewOptions = (
   config: RendererConfig,
   pagePath: string,
 ): RendererOptions => {
-  const options = generateCommonOptions(pagePath);
+  const options = generateCommonOptions(pagePath, config.traqStamps);
 
   const { remarkPlugins, rehypePlugins } = options;
 
