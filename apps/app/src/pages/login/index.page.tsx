@@ -84,9 +84,14 @@ const getServerSideConfigurationProps: GetServerSideProps<
   const req: CrowiRequest = context.req as CrowiRequest;
   const { crowi } = req;
   const { configManager, mailService, passportService } = crowi;
+  const externalAccountLoginError = req.session.externalAccountLoginError;
+  delete req.session.externalAccountLoginError;
 
   return {
     props: {
+      ...(externalAccountLoginError != null
+        ? { externalAccountLoginError: JSON.parse(externalAccountLoginError) }
+        : {}),
       enabledExternalAuthType: [
         configManager.getConfig('security:passport-google:isEnabled') === true
           ? IExternalAuthProviderType.google
@@ -99,6 +104,9 @@ const getServerSideConfigurationProps: GetServerSideProps<
           : undefined,
         configManager.getConfig('security:passport-oidc:isEnabled') === true
           ? IExternalAuthProviderType.oidc
+          : undefined,
+        passportService.isTraqStrategySetup
+          ? IExternalAuthProviderType.traq
           : undefined,
       ].filter(
         (authType): authType is Exclude<typeof authType, undefined> =>

@@ -145,6 +145,9 @@ export class GrowiInfoService {
     // Include attachment info (required for all additional info)
     const activeExternalAccountTypes: IExternalAuthProviderType[] =
       Object.values(IExternalAuthProviderType).filter((type) => {
+        if (type === 'traq') {
+          return process.env.TRAQ_ENABLED === 'true';
+        }
         return configManager.getConfig(`security:passport-${type}:isEnabled`);
       });
 

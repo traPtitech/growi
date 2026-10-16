@@ -541,6 +541,7 @@ class Crowi {
       await this.passportService.setupStrategyById('oidc');
       await this.passportService.setupStrategyById('google');
       await this.passportService.setupStrategyById('github');
+      await this.passportService.setupTraqStrategy();
     } catch (err) {
       logger.error(err);
     }

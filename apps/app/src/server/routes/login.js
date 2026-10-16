@@ -172,6 +172,14 @@ export const setup = (crowi, app) => {
       req.session.redirectTo = req.headers.referer;
     }
 
+    if (
+      user == null &&
+      crowi.passportService.isTraqStrategySetup &&
+      req.session.externalAccountLoginError == null
+    ) {
+      return res.redirect('/passport/traq');
+    }
+
     next();
   };
 

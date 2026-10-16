@@ -16,6 +16,9 @@ const authIcon = {
   [IExternalAuthProviderType.saml]: (
     <span className="material-symbols-outlined align-bottom">key</span>
   ),
+  [IExternalAuthProviderType.traq]: (
+    <span className="growi-custom-icons align-bottom">traq</span>
+  ),
 };
 
 const authLabel = {
@@ -23,6 +26,7 @@ const authLabel = {
   [IExternalAuthProviderType.github]: 'GitHub',
   [IExternalAuthProviderType.oidc]: 'OIDC',
   [IExternalAuthProviderType.saml]: 'SAML',
+  [IExternalAuthProviderType.traq]: 'traQ',
 };
 
 export const ExternalAuthButton = ({

@@ -4,6 +4,7 @@ export const IExternalAuthProviderType = {
   oidc: 'oidc',
   google: 'google',
   github: 'github',
+  traq: 'traq',
 } as const;
 
 export type IExternalAuthProviderType =
